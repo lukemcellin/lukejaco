@@ -1,0 +1,10 @@
+<KinBody name="button4">
+<Body type="static" name="cabinet_link">
+  <Geom type="cylinder">
+    <Translation> 0 0 0 </Translation>
+    <radius>0.0465</radius>
+    <height>0.0294</height>
+  </Geom>
+</Body>
+</KinBody>
+

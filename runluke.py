@@ -13,10 +13,10 @@ import matplotlib.pyplot as plt
 
 import openrave_utils
 from openrave_utils import *
+from velsampling import *
 
 
-
-pick= [184.2, 151.6, 183.8, 101.8, 224.2, 216.9, 310.8]
+#pick= [184.2, 151.6, 183.8, 101.8, 224.2, 216.9, 310.8]
 #place = [210.8, 101.6, 192.0, 114.7, 222.2, 246.1, 322.0]
 
 
@@ -42,7 +42,7 @@ buttonpos = numpy.mod(np.array(buttonpos),math.pi*2)
 
 	#loop for whole sequence
 	#seqtraj = np.array([])
-sequence = [0,1]
+sequence = [0,5,1]
 for index in range(1,len(sequence)):
 	sindex = sequence[index-1]
 	start = buttonpos[sindex,:]
@@ -65,7 +65,7 @@ for index in range(1,len(sequence)):
 
 	# max table weight = 0, which means robot will prioritize staying close to the table
 	# See what happens when you change it to 1!
-		table_weight = 1
+		table_weight = -0.5
 	
 	# set the start time of the traj, final time and step time (in seconds)
 		start_time = 0.0
@@ -77,12 +77,16 @@ for index in range(1,len(sequence)):
 		#start = goal
 		traj = planner.replan(start, goal, table_weight, start_time, final_time, step_time)		
 		#seqtraj = numpy.append(seqtraj,traj)
-	
-	# plot the trajectory using functions from openrave_utils
-		plotTraj(planner.env, planner.robot, planner.bodies, traj, color=[1,0,0]) #, increment=5)
+		
+		#take traj and transform it to desired velocity profile		
+		sampledtraj = velprofile(traj)
+		sampledtraj = np.transpose(sampledtraj)
+
+		# plot the trajectory using functions from openrave_utils
+		plotTraj(planner.env, planner.robot, planner.bodies, sampledtraj, color=[1,0,0]) #, increment=5)
 	
 		print(traj)
-		np.savetxt('jacotraj', np.array(traj), delimiter="\,")
+		np.savetxt('jacotraj', np.array(traj), delimiter=",")
 
 
 		# sleep the sim for 20 seconds so the program doens't shut down

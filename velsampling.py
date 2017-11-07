@@ -1,6 +1,7 @@
 import scipy
 import numpy as np
 import skfuzzy
+import matplotlib.pyplot as plt
 
 ## sampling waypoints based on a sigmoid function gives us a bell shaped velocity profile... two parameters allow us to control 'skewness'(symmetry) and 'kurtosis'(sharpness of acceleration and deceleration) of velocity profile
  
@@ -17,8 +18,14 @@ def velprofile(traj,skew,kurt):
 	#transform linear function to sigmoidal function
 	index = skfuzzy.membership.sigmf(x,skew,kurt) 
 	index = index*allframes
+	corrector = np.true_divide(allframes-1,np.amax(index))
+	index = index*corrector
 	index = np.rint(index)
-
+	index[index==0] = 1 #do this because 0 values mess traj up
+	print(index)
+	
+	#plt.plot(index)
+	#plt.show()
 	#interpolate up to 1000Hz (iterate for each joint)
 	interpmatrix = np.empty((0,allframes))
 	for i in range(0,7):
@@ -35,8 +42,12 @@ def velprofile(traj,skew,kurt):
 	sampling = np.rint(sampling) # round for indexing
 	sampling = np.int_(sampling)
 
+	print(sampling)
+	#plt.plot(sampling)
+	#plt.show()
+
 	#sample from interpolated trajs using sampling distribution
-	sampledtraj = interpmatrix[sampling-1,:]
+	sampledtraj = interpmatrix[sampling,:]
 	sampledtraj = np.transpose(sampledtraj)
 
 	return(sampledtraj)
@@ -78,6 +89,8 @@ def velpause(traj,skew,kurt,pausepos,pausetime):
 	#concatenate pause with movements before and after pause
 	index = np.concatenate((index1,pause,index2))
 	index = index*allframes
+	corrector = np.true_divide(allframes-1,np.amax(index))
+	index = index*corrector
 	index = np.rint(index)
 
 	#interpolate up to 1000Hz (iterate for each joint)
@@ -97,7 +110,7 @@ def velpause(traj,skew,kurt,pausepos,pausetime):
 	sampling = np.int_(sampling)
 
 	#sample from interpolated trajs using sampling distribution
-	sampledtraj = interpmatrix[sampling-1,:]
+	sampledtraj = interpmatrix[sampling,:]
 	sampledtraj = np.transpose(sampledtraj)
 
 	return(sampledtraj)

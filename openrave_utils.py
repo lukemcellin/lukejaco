@@ -26,7 +26,7 @@ def initialize(model_filename='jaco_dynamics', envXML=None):
 	env = openravepy.Environment()
 	if envXML is not None:
 		env.LoadURI(envXML)
-	env.SetViewer('qtcoin')
+	#env.SetViewer('qtcoin')
 
 	here = os.path.dirname(os.path.realpath(__file__))
 	urdf_uri = here+'/data/'+model_filename+'.urdf'
@@ -43,13 +43,13 @@ def initialize(model_filename='jaco_dynamics', envXML=None):
 	robot.SetActiveDOFs(np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]))
 	robot.SetDOFValues(robot_starting_dofs)
 
-	viewer = env.GetViewer()
-	viewer.SetSize(700,500)
-	cam_params = np.array([[-0.99885711, -0.01248719, -0.0461361 , -0.18887213],
-		   [ 0.02495645,  0.68697757, -0.72624996,  2.04733515],
-		   [ 0.04076329, -0.72657133, -0.68588079,  1.67818344],
-		   [ 0.        ,  0.        ,  0.        ,  1.        ]])
-	viewer.SetCamera(cam_params)
+	#viewer = env.GetViewer()
+	#viewer.SetSize(700,500)
+	#cam_params = np.array([[-0.99885711, -0.01248719, -0.0461361 , -0.18887213],
+	#	   [ 0.02495645,  0.68697757, -0.72624996,  2.04733515],
+	#	   [ 0.04076329, -0.72657133, -0.68588079,  1.67818344],
+	#	   [ 0.        ,  0.        ,  0.        ,  1.        ]])
+	#viewer.SetCamera(cam_params)
 
 	return env, robot
 
@@ -203,7 +203,7 @@ def plotStartButton(env):
 	here = os.path.dirname(os.path.realpath(__file__))
 	env.Load(here+ '/data/startbutton.xml')
 	startbutton = env.GetKinBody('startbutton')
-	startbutton.SetTransform(np.array([[1.0, 0.0,  0.0, -0.4528/2], #should be negative 1?
+	startbutton.SetTransform(np.array([[1.0, 0.0,  0.0, -0.5528/2], #should be negative 1?
   					     [0.0, 0.0, -1.0, 0],
 			                     [0.0, 1.0,  0.0, -0.1143], #-0.7874
 			                     [0.0, 0.0,  0.0, 1.0]]))
@@ -220,7 +220,7 @@ def plotButton1(env):
 	env.Load(here+ '/data/button1.xml')
 	button1 = env.GetKinBody('button1')
 	button1.SetTransform(np.array([[1.0, 0.0,  0.0, -0.55], #should be negative 1?
-  					     [0.0, 0.0, -1.0, -0.4],
+  					     [0.0, 0.0, -1.0, -0.45],
 			                     [0.0, 1.0,  0.0, -0.1143], #-0.7874
 			                     [0.0, 0.0,  0.0, 1.0]]))
 	color = np.array([0.05,0.05,0.8]) 
@@ -235,7 +235,7 @@ def plotButton2(env):
 	env.Load(here+ '/data/button2.xml')
 	button2 = env.GetKinBody('button2')
 	button2.SetTransform(np.array([[1.0, 0.0,  0.0, -0.55], #should be negative 1?
-  					     [0.0, 0.0, -1.0, -0.2],
+  					     [0.0, 0.0, -1.0, -0.15],
 			                     [0.0, 1.0,  0.0, -0.1143], #-0.7874
 			                     [0.0, 0.0,  0.0, 1.0]]))
 	color = np.array([0.05,0.05,0.8]) 
@@ -250,7 +250,7 @@ def plotButton3(env):
 	env.Load(here+ '/data/button3.xml')
 	button3 = env.GetKinBody('button3')
 	button3.SetTransform(np.array([[1.0, 0.0,  0.0, -0.55], #should be negative 1?
-  					     [0.0, 0.0, -1.0, 0.0],
+  					     [0.0, 0.0, -1.0, 0.15],
 			                     [0.0, 1.0,  0.0, -0.1143], #-0.7874
 			                     [0.0, 0.0,  0.0, 1.0]]))
 	color = np.array([0.05,0.05,0.8]) 
@@ -265,26 +265,26 @@ def plotButton4(env):
 	env.Load(here+ '/data/button4.xml')
 	button4 = env.GetKinBody('button4')
 	button4.SetTransform(np.array([[1.0, 0.0,  0.0, -0.55], #should be negative 1?
-  					     [0.0, 0.0, -1.0, 0.2],
+  					     [0.0, 0.0, -1.0, 0.45],
 			                     [0.0, 1.0,  0.0, -0.1143], #-0.7874
 			                     [0.0, 0.0,  0.0, 1.0]]))
 	color = np.array([0.05,0.05,0.8]) 
 	button4.GetLinks()[0].GetGeometries()[0].SetDiffuseColor(color)
 
-def plotButton5(env):
-	"""
-	Plots the fifth button in OpenRAVE.
-	"""
-	# load button 5 into environment
-	here = os.path.dirname(os.path.realpath(__file__))
-	env.Load(here+ '/data/button5.xml')
-	button5 = env.GetKinBody('button5')
-	button5.SetTransform(np.array([[1.0, 0.0,  0.0, -0.55], #should be negative 1?
-  					     [0.0, 0.0, -1.0, 0.4],
-			                     [0.0, 1.0,  0.0, -0.1143], #-0.7874
-			                     [0.0, 0.0,  0.0, 1.0]]))
-	color = np.array([0.05,0.05,0.8]) 
-	button5.GetLinks()[0].GetGeometries()[0].SetDiffuseColor(color)
+#def plotButton5(env):
+#	"""
+#	Plots the fifth button in OpenRAVE.
+#	"""
+#	# load button 5 into environment
+#	here = os.path.dirname(os.path.realpath(__file__))
+#	env.Load(here+ '/data/button5.xml')
+#	button5 = env.GetKinBody('button5')
+#	button5.SetTransform(np.array([[1.0, 0.0,  0.0, -0.55], #should be #negative 1?
+#  					     [0.0, 0.0, -1.0, 0.4],
+#			                     [0.0, 1.0,  0.0, -0.1143], ##-0.7874
+#			                     [0.0, 0.0,  0.0, 1.0]]))
+#	color = np.array([0.05,0.05,0.8]) 
+#	button5.GetLinks()[0].GetGeometries()[0].SetDiffuseColor(color)
 
 
 """

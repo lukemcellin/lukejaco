@@ -37,7 +37,6 @@ from velsampling import *
 
 prefix = 'j2s7s300_driver'
 
-
 #last two are left and right pause trajs
 buttonpos = np.array([[-3.09514739, 2.73559032, 0.0, -0.6919486,   0.0, 2.85564639, 1.51877286],
 [-2.47415771e+00, 1.75537416e+00, 0.00000000e+00, -2.80533945e+00,  -7.10542736e-15, 1.72247170e+00, 2.23823127e+00],
@@ -47,39 +46,45 @@ buttonpos = np.array([[-3.09514739, 2.73559032, 0.0, -0.6919486,   0.0, 2.855646
  [-2.48015012e+00, 2.43905671e+00, 0.00000000e+00, -1.11739605e+00, -7.10542736e-15, 2.72673255e+00, 2.23223886e+00],
 [2.41355865e+00, 2.43905671e+00, 0.00000000e+00, -1.11739605e+00, -7.10542736e-15, 2.72673255e+00, 8.42762320e-01]])
 
-#buttonpos = np.array([[-3.09514739, 2.24739644, 0.0, -0.76530263, 0.0, -3.01269908, 1.52435106],
-#[2.47415770e+00, 1.63300379e+00, 0.00000000e+00, -2.82844404e+00,  -7.10542736e-15, 1.82173748e+00, 2.23823128e+00],
- #[2.89814609e+00, 2.03515783e+00, 0.00000000e+00, -1.81899146e+00,  -7.10542736e-15, 2.42903601e+00, 1.81424289e+00],
- #[-2.85253512e+00, 2.03515783e+00, 0.00000000e+00, -1.81899146e+00,  -7.10542736e-15, 2.42903601e+00, 1.28173879e+00],
- #[-2.43756859e+00, 1.63300379e+00, 0.00000000e+00, -2.82844404e+00,  -7.10542736e-15, 1.82173748e+00, 8.66772265e-01]])
-
 buttonpos = np.mod(np.array(buttonpos),math.pi*2)
 
 sequencematrix = np.genfromtxt('sequencematrix',delimiter = ",",dtype = int) # sequences for n trials
 trialmatrix = np.genfromtxt('trialmatrix', delimiter = ",",dtype = int) #sequence number for each trial type... 1 = no delay low amp, 2 = no delay high amp, 3 = delay low amp, 4 = delay high amp
 
 for trial in range(1,len(trialmatrix)): 
-
-	epsilon = 0.25
+	
+	print('Trial number:   ' ,trial)
+	epsilon = 0.25 #make this larger in order to get rid of delay between taps
 	MAX_CMD_TORQUE = 40.0
 
 	seqtype = trialmatrix[trial,0] 
-	trialtype = 1#trialmatrix[trial,1]
-	sequence =  [0,5,0,2,4,1] #sequencematrix[seqtype,:]
-
+	trialtype = trialmatrix[trial,1]
+	sequencelr =  sequencematrix[seqtype,:]
+	sequencerl = fliplr(sequencematrix[seqtype,:])
+	
+	print ('Trial Type:  ', trialtype)
 	#determine whether or not the robot should hesitate
 	if trialtype > 2:
 		fakepos = np.random.randint(5,7)
 		fakepos = np.array([0,fakepos])
-		sequence = np.concatenate((fakepos,sequence)) #adds a fake target position and then retracts back to start
-
+		sequencelr = np.concatenate((fakepos,sequencelr)) #adds a fake target position and then retracts back to start
+		sequencerl = np.concatenate((fakepos,sequencerl))
+	
+	print('Start Trial')
+	
+	#add wait for enter press code
+	#add start tone
+	
+	stroketime = np.empty([0,4])
 	for seq in range(1,len(sequence)):
-		#if seq == 2:
-			#choice = 2 #input('input choice' )
-			#if choice == 1:
-				#sequence = np.fliplr(sequence) #sequencematrix[seqtype,:]
-				#sequence = sequence.tolist()
-				#sequence = [0,5,0,3,1,0] #lazy way... make above fliplr work
+		if seq == 2: #robot will be at the start point
+			choice = input('input choice' )
+			if choice == 1:
+				sequence = sequencelr 
+			elif choice == 2:
+				sequence = sequencerl
+			
+				
 		class PIDVelJaco(object): 
 			"""
 			This class represents a node that moves the Jaco with PID control through ROS.
@@ -121,14 +126,12 @@ for trial in range(1,len(trialmatrix)):
 				# ---- Trajectory Setup ---- #
 
 
-				# determine whether or not to exaggerate amplitude
-				#if trialtype % 2 == 0:
-				#amplitude exaggerator
-				#	self.weights = -1 #highest amplitude
-				#else:
-				#	self.weights = -1 #lowest amplitude
-
-				self.weights = -1				
+				# determine whether or not to exaggerate amplitude... maybe i should write my own amplitude function
+				if trialtype % 2 == 0:
+				
+					self.weights = -1 #highest amplitude
+				else:
+					self.weights = -1 #lowest amplitude
 
 				# initialize start/goal based on task 
 				start = buttonpos[startpos]
@@ -194,9 +197,9 @@ for trial in range(1,len(trialmatrix)):
 				self.cmd = np.eye(7) 
 
 				# P, I, D gains 
-				p_gain = 100.0
-				i_gain = 0.0
-				d_gain = 20.0
+				p_gain = 100.0 #makes the robot move slower or faster
+				i_gain = 0.0 
+				d_gain = 20.0 #determines how faithful the robot is to the trajectory (I think)
 				self.P = p_gain*np.eye(7)
 				self.I = i_gain*np.eye(7)
 				self.D = d_gain*np.eye(7)
@@ -226,6 +229,7 @@ for trial in range(1,len(trialmatrix)):
 
 					elif self.reached_goal:
 						break
+						stroketime[counter,0] = #whatever function returns time
 
 					self.vel_pub.publish(ros_utils.cmd_to_JointVelocityMsg(self.cmd))
 					r.sleep()
@@ -344,6 +348,7 @@ for trial in range(1,len(trialmatrix)):
 					else:
 						#print "REACHED GOAL! Holding position at goal."
 						self.target_pos = self.goal_pos
+						print(t)
 
 		if __name__ == '__main__':
 			PIDVelJaco()

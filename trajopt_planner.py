@@ -186,8 +186,15 @@ class Planner(object):
 			{
 				"type": "joint_vel",
 				"params": {"coeffs": [1.0]}
-			}
-			],
+			},
+			{
+    				"type" : "collision",
+    				"params" : {
+     				"coeffs" : [20], # penalty coefficients. list of length one is automatically expanded to a list of length n_timesteps
+      				"dist_pen" : [0.025] # robot-obstacle distance that penalty kicks in. expands to length n_timesteps
+    			},
+			}	
+			]			],
 			"constraints": [
 			{
 				"type": "joint",
